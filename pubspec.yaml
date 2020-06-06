@@ -12,9 +12,12 @@ dependencies:
     git:
       url: git@github.com:thetrav/hexagonal_grid_widget-master.git
   after_layout: ^1.0.7
+  matrix_gesture_detector: ^0.1.0
+  vector_math: ^2.0.8
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  test: 1.13.0
 
 
 flutter:
