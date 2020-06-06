@@ -49,7 +49,7 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
   List<Hex> getHexes(Hex centerHex, int radius) {
     List<Hex> hexList = [];
     hexList.add(centerHex);
-
+    hexList.add(centerHex.neighbor(0));
     //Start at one since we already seeded the origin
     Hex neighborHex = centerHex;
     for (int orbital = 1; orbital < radius; orbital++) {
@@ -62,7 +62,6 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
         }
       }
     }
-//    print("hexes: \n\t${hexList.join("\n\t")}");
     return hexList;
   }
 
@@ -71,7 +70,10 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
 
   Widget buildStack(BuildContext b) {
     final scaledHexSize = hexSize * scale.x;
-    final size = HexLayout.getOrientFlatSizeFromSymmetricalSize(scaledHexSize);
+
+    //NOTE: this appears to cause issues with determining the center hex
+//    final size = HexLayout.getOrientFlatSizeFromSymmetricalSize(scaledHexSize);
+    final size = Point(scaledHexSize, scaledHexSize);
     final layout = HexLayout.orientFlat(size);
     final Point zero = Point(-translation.x,-translation.y);
 
@@ -79,23 +81,10 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
     final centerHex = Hex.fromPoint(layout, zero);
 
     final containerMiddle = Point(containerWidth/2, containerHeight/2);
-    final maxScale = max(containerWidth*scale.x, containerHeight*scale.y);
-    final hexRadius = (maxScale/scaledHexSize/2).ceil();
+    final edgeHex = Hex.fromPoint(layout, zero+containerMiddle);
+    final hexRadius = centerHex.distance(edgeHex);
 
     final List<Hex> hexes = getHexes(centerHex, hexRadius);
-//    final c1 = hexes.first.toPixel(layout);
-//    final bits = [
-//      "frame:",
-//      "centerHex:\t${centerHex.q}, ${centerHex.r}, ${centerHex.s}",
-//      "radius:\t$hexRadius",
-//      "containerSize:\t$containerWidth,$containerHeight",
-//      "translation:\t$translation",
-//      "scale:\t$scale",
-//      "scaledHexSize:\t$scaledHexSize",
-//      "size:\t$size",
-//      "centerHexCoords:\t$c1",
-//    ];
-//    print(bits.join("\n\t"));
 
     Widget hexToWidget(Hex h) {
       final hexToPixel = h.toPixel(layout)+containerMiddle;
@@ -117,6 +106,19 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
       left: p.x-w/2,
       child: Container(color: c, width: w, height: h ?? w)
     );
+    Widget debug(List<String> lines) => Positioned(
+      top:10,
+      left:10,
+      child: Container(
+        color: m.Colors.white,
+        child: Padding(
+          padding: EdgeInsets.all(5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: lines.map((l) => Text(l)).toList())
+          )
+        )
+      );
 
     return Stack(
       fit: StackFit.loose,
@@ -125,21 +127,19 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
           mark(
             containerMiddle,
             m.Colors.red,
-            9
+            3
           ),
           mark(
             containerMiddle,
             m.Colors.green.withOpacity(0.5),
             size.x*2, h: size.y*2
           ),
-          Positioned(
-            top:10,
-            left:10,
-            child: Container(
-              color: m.Colors.white,
-              child: Text("center: ${centerHex.q}, ${centerHex.r}, ${centerHex.s}")
-            )
-          )
+          debug([
+            "centerHex: ${centerHex.q}, ${centerHex.r}, ${centerHex.s}",
+            "translation: $translation",
+            "scale: $scale",
+            "radius: $hexRadius",
+          ])
         ]
     );
   }

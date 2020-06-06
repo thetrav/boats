@@ -13,13 +13,17 @@ class BaseHexWidget extends StatelessWidget {
   final int q;
   final int r;
   final int s;
+  final Color color;
+  final bool drawCoords;
 
   BaseHexWidget({
     this.size,
     this.q,
     this.r,
     this.s,
-    this.layout
+    this.layout,
+    this.color = Colors.black,
+    this.drawCoords = false
   });
 
   @override
@@ -31,13 +35,13 @@ class BaseHexWidget extends StatelessWidget {
     }).toList();
     return CustomPaint(
       size: Size(size.x, size.y),
-      painter: HexBorderPainter(corners, Colors.black),
+      painter: HexBorderPainter(corners, color),
       child: Container(
         transform: Matrix4.translationValues(-size.x/2, -size.y/2, 1),
         alignment: Alignment.center,
         width: size.x,
         height: size.y,
-        child: Text("$q, $r, $s", textScaleFactor: 0.8)
+        child: drawCoords ? Text("$q, $r, $s", textScaleFactor: 0.8) : null
       )
     );
   }

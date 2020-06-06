@@ -8,19 +8,50 @@ import 'package:vector_math/vector_math_64.dart' as vec;
 typedef MathF<T extends num> = T Function(T, T);
 typedef VFn = vec.Vector4 Function(double x, double y, double z, double w);
 
+const double MIN_SCALE = 0.6;
+const double MAX_SCALE = 10;
+
+double _minMax(num _min, num _max, num actual) {
+  if (_min == null && _max == null) {
+    return actual.toDouble();
+  }
+
+  if (_min == null) {
+    return min(_max.toDouble(), actual.toDouble());
+  }
+
+  if (_max == null) {
+    return max(_min.toDouble(), actual.toDouble());
+  }
+
+  return min(_max.toDouble(), max(_min.toDouble(), actual.toDouble()));
+}
+
+Map<int, VFn> COL_MAP = {
+  0: (x, y, z, w) {
+    x = _minMax(MIN_SCALE, MAX_SCALE, x);
+    return vec.Vector4(x, y, z, w);
+  },
+  1: (x, y, z, w) {
+    y = _minMax(MIN_SCALE, MAX_SCALE, y);
+    return vec.Vector4(x, y, z, w);
+  },
+  2: (x, y, z, w) {
+    z = _minMax(MIN_SCALE, MAX_SCALE, z);
+    return vec.Vector4(x, y, z, w);
+  },
+
+};
+
 void noop(Matrix4 m) {}
 
 class ConstrainedGesturePanel extends StatefulWidget {
 
   final Function(Matrix4) onUpdate;
-  final double minScale;
-  final double maxScale;
   final Widget Function(BuildContext, Matrix4, double, double) builder;
 
   ConstrainedGesturePanel({
     this.onUpdate = noop,
-    this.minScale = 0.00001,
-    this.maxScale = 10000,
     @required this.builder
   });
 
@@ -59,20 +90,17 @@ class _ConstrainedGesturePanelState
     _isAfterFirstLayout = false;
   }
 
-  double _minMax(num _min, num _max, num actual) {
-    if (_min == null && _max == null) {
-      return actual.toDouble();
-    }
+  Matrix4 constrain(Matrix4 m) {
+    Matrix4 finalM = Matrix4.copy(m);
 
-    if (_min == null) {
-      return min(_max.toDouble(), actual.toDouble());
+    for (var col in COL_MAP.keys) {
+      var oldCol = m.getColumn(col);
+      var colD = COL_MAP[col];
+      if (colD != null) {
+        finalM.setColumn(col, colD(oldCol.x, oldCol.y, oldCol.z, oldCol.w));
+      }
     }
-
-    if (_max == null) {
-      return max(_min.toDouble(), actual.toDouble());
-    }
-
-    return min(_max.toDouble(), max(_min.toDouble(), actual.toDouble()));
+    return finalM;
   }
 
   @override
@@ -84,28 +112,7 @@ class _ConstrainedGesturePanelState
       MatrixGestureDetector(
         shouldRotate: false,
         onMatrixUpdate: (Matrix4 m, Matrix4 tm, Matrix4 sm, Matrix4 rm) {
-          var finalM = Matrix4.copy(m);
-          Map<int, VFn> colmap = {
-            0: (x, y, z, w) {
-              x = _minMax(widget.minScale, widget.maxScale, x);
-              return vec.Vector4(x, y, z, w);
-            },
-            1: (x, y, z, w) {
-              y = _minMax(widget.minScale, widget.maxScale, y);
-              return vec.Vector4(x, y, z, w);
-            },
-            2: (x, y, z, w) {
-              z = _minMax(widget.minScale, widget.maxScale, z);
-              return vec.Vector4(x, y, z, w);
-            },
-          };
-          for (var col in colmap.keys) {
-            var oldCol = m.getColumn(col);
-            var colD = colmap[col];
-            if (colD != null) {
-              finalM.setColumn(col, colD(oldCol.x, oldCol.y, oldCol.z, oldCol.w));
-            }
-          }
+          var finalM = constrain(m);
           setState(() {
             matrix = finalM;
           });
