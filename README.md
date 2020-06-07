@@ -1,16 +1,18 @@
 # boats
 
-turn based multi player old boat combat
+Turn based multi player Age of Sail combat simulation game with synchronous action,
+constrained communications and cannon fire.
 
-## Getting Started
+This implementation uses google's cross platform UI framework: https://flutter.dev/
 
-This project is a starting point for a Flutter application.
+A lot of code was shamelessly stolen from here: https://pub.dev/packages/hexagonal_grid which
+implements this wonderful article on cube hex coordinates: https://www.redblobgames.com/grids/hexagons/
 
-A few resources to get you started if this is your first Flutter project:
+A web demo is available at https://thetrav.github.io/boats-example
+however last I checked the performance was pretty rubbish.
+It does much better on mobile devices and tablets, honest.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+While, It could be used for fully remote play,
+the intention is for this to be a support tool to aid in-person play,
+which I have found to be fairly easy to accidentally cheat in
+and somewhat time consuming for new players.
