@@ -27,7 +27,7 @@ double _minMax(num _min, num _max, num actual) {
   return min(_max.toDouble(), max(_min.toDouble(), actual.toDouble()));
 }
 
-Map<int, VFn> COL_MAP = {
+Map<int, VFn> _colMap = {
   0: (x, y, z, w) {
     x = _minMax(MIN_SCALE, MAX_SCALE, x);
     return vec.Vector4(x, y, z, w);
@@ -40,14 +40,13 @@ Map<int, VFn> COL_MAP = {
     z = _minMax(MIN_SCALE, MAX_SCALE, z);
     return vec.Vector4(x, y, z, w);
   },
-
 };
 
-void noop(Matrix4 m) {}
+void noop(Matrix4 m, Point size) {}
 
 class ConstrainedGesturePanel extends StatefulWidget {
 
-  final Function(Matrix4) onUpdate;
+  final Function(Matrix4, Point) onUpdate;
   final Widget Function(BuildContext, Matrix4, double, double) builder;
 
   ConstrainedGesturePanel({
@@ -93,9 +92,9 @@ class _ConstrainedGesturePanelState
   Matrix4 constrain(Matrix4 m) {
     Matrix4 finalM = Matrix4.copy(m);
 
-    for (var col in COL_MAP.keys) {
+    for (var col in _colMap.keys) {
       var oldCol = m.getColumn(col);
-      var colD = COL_MAP[col];
+      var colD = _colMap[col];
       if (colD != null) {
         finalM.setColumn(col, colD(oldCol.x, oldCol.y, oldCol.z, oldCol.w));
       }
@@ -116,7 +115,7 @@ class _ConstrainedGesturePanelState
           setState(() {
             matrix = finalM;
           });
-          widget.onUpdate(finalM);
+          widget.onUpdate(finalM, Point(containerWidth, containerHeight));
         },
         child: Container(
           color: Colors.blue,

@@ -1,19 +1,30 @@
+import 'package:boats/game/ship.dart';
+import 'package:boats/game/turn.dart';
 
 import '../game/game.dart';
 import 'package:flutter/material.dart';
 
 class GameControls extends StatelessWidget {
   final Game game;
+  final Ship ship;
+  final String currentShipId;
   final Function(Game) updateState;
-  GameControls(this.game, this.updateState);
+  GameControls({
+    this.game,
+    this.ship,
+    this.currentShipId,
+    this.updateState
+  });
+
+  Turn get currentTurn => ship.turns.first;
 
   void planAction(String action) {
-    game.ships.first.turns.first.plan.movement.add(action);
+    currentTurn.plan.movement.add(action);
     updateState(game);
   }
 
   void undoPlan() {
-    final moves = game.ships.first.turns.first.plan.movement;
+    final moves = currentTurn.plan.movement;
     if(moves.isNotEmpty) {
       moves.removeLast();
       updateState(game);

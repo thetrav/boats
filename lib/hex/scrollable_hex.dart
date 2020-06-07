@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:boats/components/entitiy.dart';
-import 'package:boats/components/ship_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as m;
 import 'package:vector_math/vector_math_64.dart';
@@ -99,32 +98,12 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
       );
     }
 
-    Widget hexToWidget(Hex h) => positioned(h,
+    Widget hexToWidget(Hex hex, {Color color = m.Colors.black}) => positioned(hex,
         BaseHexWidget(
-          q: h.q,
-          r: h.r,
-          s: h.s,
+          hex: hex,
           size: size,
-          layout: layout
-        )
-      );
-
-    Widget mark(Point p, Color c, double w, {double h}) => Positioned(
-      top: p.y-(h??w)/2,
-      left: p.x-w/2,
-      child: Container(color: c, width: w, height: h ?? w)
-    );
-    Widget debug(List<String> lines) => Positioned(
-      bottom:10,
-      left:10,
-      child: Container(
-        color: m.Colors.white,
-        child: Padding(
-          padding: EdgeInsets.all(5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: lines.map((l) => Text(l)).toList())
-          )
+          layout: layout,
+          color: color
         )
       );
 
@@ -134,34 +113,14 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
         h,
         widget.entities[Point<num>(h.q, h.r)].render(context, size)
       ));
-    final heading = (widget.entities.values.first as ShipEntity).heading;
 
     return Stack(
       fit: StackFit.loose,
       children:
         hexes.map(hexToWidget).toList() +
+        [hexToWidget(centerHex, color: m.Colors.yellow)] +
         entities.toList() +
-        [
-          mark(
-            containerMiddle,
-            m.Colors.red,
-            3
-          ),
-          mark(
-            containerMiddle,
-            m.Colors.green.withOpacity(0.5),
-            size.x*2, h: size.y*2
-          ),
-          debug([
-            "centerHex: ${centerHex.q}, ${centerHex.r}, ${centerHex.s}",
-            "translation: $translation",
-            "scale: $scale",
-            "radius: $hexRadius",
-            "size: $size",
-            "heading: ${heading}"
-          ])
-        ]
-      + widget.overlays
+        widget.overlays
     );
   }
 }

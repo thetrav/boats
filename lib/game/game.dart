@@ -6,13 +6,17 @@ import 'turn.dart';
 class Game {
   int turnCount = 1;
 
+  Player player;
   List<Player> players;
   List<Ship> ships;
 
   Game({
     this.ships,
-    this.players
+    this.players,
+    this.player
   });
+
+  Turn currentTurn(String shipId) => ships.firstWhere((s)=> s.shipId == shipId).turns.first;
 
   void simulate() {
     turnCount++;
@@ -38,6 +42,4 @@ class Game {
       })
     });
   }
-
-
 }

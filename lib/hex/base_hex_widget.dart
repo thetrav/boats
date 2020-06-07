@@ -8,19 +8,15 @@ import 'hex_coords.dart';
 
 class BaseHexWidget extends StatelessWidget {
 
-  HexLayout layout;
+  final HexLayout layout;
   final Point size;
-  final int q;
-  final int r;
-  final int s;
+  final Hex hex;
   final Color color;
   final bool drawCoords;
 
   BaseHexWidget({
+    this.hex,
     this.size,
-    this.q,
-    this.r,
-    this.s,
     this.layout,
     this.color = Colors.black,
     this.drawCoords = true
@@ -41,7 +37,9 @@ class BaseHexWidget extends StatelessWidget {
         alignment: Alignment.center,
         width: size.x,
         height: size.y,
-        child: drawCoords ? Text("$q, $r, $s", textScaleFactor: 0.8) : null
+        child: drawCoords ?
+          Text("${hex.q}, ${hex.r}, ${hex.s}", textScaleFactor: 0.8) :
+          null
       )
     );
   }
