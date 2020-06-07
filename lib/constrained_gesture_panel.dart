@@ -70,7 +70,7 @@ class _ConstrainedGesturePanelState
 
   @override
   void afterFirstLayout(BuildContext context) {
-    _isAfterFirstLayout = true;
+    setState(() => _isAfterFirstLayout = true);
   }
 
   double get containerHeight {
@@ -121,6 +121,8 @@ class _ConstrainedGesturePanelState
         child: Container(
           color: Colors.blue,
           child: widget.builder(context, matrix, containerWidth, containerHeight)
-        )): Container()
+        )): Center(child: Column(children:[
+          CircularProgressIndicator(), Text("Loading")
+        ]))
       );
 }

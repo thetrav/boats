@@ -1,15 +1,21 @@
+import 'dart:math';
+
+import 'package:boats/game/hex_map.dart';
 import 'package:boats/hex/scrollable_hex.dart';
 import 'package:flutter/material.dart';
 
 import 'constrained_gesture_panel.dart';
 
 const int HEX_SIZE = 25;
+HexMap MAP = HexMap();
 
-void main() => runApp(Application());
-
-Widget MAP(int q, int r, int s) => Container(color: Colors.green);
+void main() {
+  MAP.entities[Point(0,0)] = ShipEntity(image: "Class 1 MS");
+  runApp(Application());
+}
 
 class Application extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'Boats!',

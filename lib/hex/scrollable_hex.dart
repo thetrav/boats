@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:boats/game/hex_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as m;
 import 'package:vector_math/vector_math_64.dart';
@@ -13,7 +14,7 @@ class ScrollableHexGrid extends StatefulWidget {
   final Quaternion rotation = Quaternion.identity();
   final Vector3 scale = Vector3.zero();
 
-  final Widget Function(int, int, int) map;
+  final HexMap map;
   final int hexSize;
   final double containerWidth;
   final double containerHeight;
@@ -86,12 +87,17 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
 
     final List<Hex> hexes = getHexes(centerHex, hexRadius);
 
-    Widget hexToWidget(Hex h) {
-      final hexToPixel = h.toPixel(layout)+containerMiddle;
+    Widget positioned(Hex hex, Widget child) {
+      final hexToPixel = hex.toPixel(layout)+containerMiddle;
       return Positioned(
         left: hexToPixel.x+translation.x,
         top: hexToPixel.y+translation.y,
-        child: BaseHexWidget(
+        child: child
+      );
+    }
+
+    Widget hexToWidget(Hex h) => positioned(h,
+        BaseHexWidget(
           q: h.q,
           r: h.r,
           s: h.s,
@@ -99,7 +105,6 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
           layout: layout
         )
       );
-    }
 
     Widget mark(Point p, Color c, double w, {double h}) => Positioned(
       top: p.y-(h??w)/2,
@@ -120,9 +125,18 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
         )
       );
 
+    final entities = hexes
+      .where((h)=> widget.map.entities[Point<num>(h.q, h.r)] != null)
+      .map((h) => positioned(
+        h,
+        widget.map.entities[Point<num>(h.q, h.r)].render(context, size)
+      ));
+
     return Stack(
       fit: StackFit.loose,
-      children: hexes.map(hexToWidget).toList() +
+      children:
+        hexes.map(hexToWidget).toList() +
+        entities.toList() +
         [
           mark(
             containerMiddle,
@@ -139,6 +153,7 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
             "translation: $translation",
             "scale: $scale",
             "radius: $hexRadius",
+            "size: $size"
           ])
         ]
     );
