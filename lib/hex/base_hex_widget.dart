@@ -23,7 +23,7 @@ class BaseHexWidget extends StatelessWidget {
     this.s,
     this.layout,
     this.color = Colors.black,
-    this.drawCoords = false
+    this.drawCoords = true
   });
 
   @override

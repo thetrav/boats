@@ -1,20 +1,34 @@
-import 'dart:math';
-
-import 'package:boats/game/hex_map.dart';
-import 'package:boats/hex/scrollable_hex.dart';
+import 'package:boats/game/game.dart';
 import 'package:flutter/material.dart';
 
-import 'constrained_gesture_panel.dart';
+import 'views/game_controller.dart';
+import 'game/player.dart';
+import 'game/ship.dart';
+import 'hex/hex_coords.dart';
+import 'headings.dart';
 
-const int HEX_SIZE = 25;
-HexMap MAP = HexMap();
+const int HEX_SIZE = 50;
 
 void main() {
-  MAP.entities[Point(0,0)] = ShipEntity(image: "Class 1 MS");
-  runApp(Application());
+  runApp(Application(Game(
+    players: [Player("Travis")],
+    ships: [
+      Ship(
+        playerName: "Travis",
+        shipId: "Adamant",
+        shipClass: "Class 1",
+        position: Hex(0,0),
+        heading: N,
+        turnCount: 01
+      )
+    ]
+  )));
 }
 
 class Application extends StatelessWidget {
+  final Game game;
+
+  Application(this.game);
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -33,17 +47,7 @@ class Application extends StatelessWidget {
         title: Text("Boats!"),
         centerTitle: true,
       ),
-      body: Container(
-        child: ConstrainedGesturePanel(
-          builder: (context, matrix, width, height) => ScrollableHexGrid(
-            hexSize: HEX_SIZE,
-            map: MAP,
-            xForm: matrix,
-            containerWidth: width,
-            containerHeight: height
-          )
-        )
-      )
+      body: GameController(game, HEX_SIZE)
     )
   );
 }

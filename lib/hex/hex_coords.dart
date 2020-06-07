@@ -3,13 +3,15 @@ import "dart:math";
 ///Implemented from:
 /// https://www.redblobgames.com/grids/hexagons/implementation.html
 class Hex {
-  static List directions = [
-    Hex(1, 0),
-    Hex(1, -1),
+  // These directions assume flat top with north in -1
+  // given that it starts at N and proceeds clockwise
+  static List<Hex> directions = [
     Hex(0, -1),
-    Hex(-1, 0),
+    Hex(1, -1),
+    Hex(1, 0),
+    Hex(0, 1),
     Hex(-1, 1),
-    Hex(0, 1)
+    Hex(-1, 0),
   ];
 
   final int _q;

@@ -1,6 +1,7 @@
 import 'dart:math';
 
-import 'package:boats/game/hex_map.dart';
+import 'package:boats/components/entitiy.dart';
+import 'package:boats/components/ship_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as m;
 import 'package:vector_math/vector_math_64.dart';
@@ -14,17 +15,19 @@ class ScrollableHexGrid extends StatefulWidget {
   final Quaternion rotation = Quaternion.identity();
   final Vector3 scale = Vector3.zero();
 
-  final HexMap map;
+  final Map<Point, Entity> entities;
   final int hexSize;
   final double containerWidth;
   final double containerHeight;
+  final List<Widget> overlays;
 
   ScrollableHexGrid({
-    @required this.map,
+    @required this.entities,
     @required this.hexSize,
     @required this.xForm,
     @required this.containerWidth,
-    @required this.containerHeight
+    @required this.containerHeight,
+    @required this.overlays
   }) {
     xForm.decompose(translation, rotation, scale);
   }
@@ -112,7 +115,7 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
       child: Container(color: c, width: w, height: h ?? w)
     );
     Widget debug(List<String> lines) => Positioned(
-      top:10,
+      bottom:10,
       left:10,
       child: Container(
         color: m.Colors.white,
@@ -126,11 +129,12 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
       );
 
     final entities = hexes
-      .where((h)=> widget.map.entities[Point<num>(h.q, h.r)] != null)
+      .where((h)=> widget.entities[Point<num>(h.q, h.r)] != null)
       .map((h) => positioned(
         h,
-        widget.map.entities[Point<num>(h.q, h.r)].render(context, size)
+        widget.entities[Point<num>(h.q, h.r)].render(context, size)
       ));
+    final heading = (widget.entities.values.first as ShipEntity).heading;
 
     return Stack(
       fit: StackFit.loose,
@@ -153,9 +157,11 @@ class ScrollableHexGridState extends State<ScrollableHexGrid> {
             "translation: $translation",
             "scale: $scale",
             "radius: $hexRadius",
-            "size: $size"
+            "size: $size",
+            "heading: ${heading}"
           ])
         ]
+      + widget.overlays
     );
   }
 }
