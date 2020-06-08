@@ -32,6 +32,7 @@ class _GameControllerState extends State<GameController> {
   Ship currentShip;
   Hex selectedHex;
   int get hexSize => widget.hexSize;
+  bool loading;
 
   @override
   void initState() {
@@ -96,9 +97,13 @@ class _GameControllerState extends State<GameController> {
 
     return Column(
       children: [
-        Row(children:[
-          Text("${game.player.name}")
-        ]),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          children:[
+            Text("${game.player.name}"),
+            Text("Wind: ${game.wind.direction.label}, ${game.wind.strength}")
+          ]
+        ),
         Expanded(
           child: ConstrainedGesturePanel(
             builder: (context, matrix, width, height) => ScrollableHexGrid(

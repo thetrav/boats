@@ -84,7 +84,7 @@ class Hex {
 
   Hex operator *(int k) => Hex(q * k, r * k);
 
-  Hex(this._q, this._r);
+  const Hex(this._q, this._r);
 
   factory Hex.fromPoint(HexLayout layout, Point p) {
     Point size = layout.size;
