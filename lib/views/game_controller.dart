@@ -100,24 +100,19 @@ class _GameControllerState extends State<GameController> {
         child: OverlayPanel(ShipPanel(
           game,
           targetShip,
-          () => setState(() => currentShip = targetShip)
+          () => setState(() {
+            currentShip = targetShip;
+            turnCalculations = TurnCalculations(
+              game: game,
+              ship: currentShip
+            );
+          })
         ))
       ));
     }
 
-
     return Column(
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          children:
-          [
-            "${game.player.name}",
-            "Wind: ${game.wind.direction.label}, ${game.wind.strength}",
-            "${currentShip.shipId} turn: ${currentTurn.turnNumber}",
-            "Movement Allowance: $movementAllowance"
-          ].map((s)=> Text(s)).toList()
-        ),
         Expanded(
           child: ConstrainedGesturePanel(
             builder: (context, matrix, width, height) => ScrollableHexGrid(
@@ -137,6 +132,16 @@ class _GameControllerState extends State<GameController> {
               updateSelectedHex(translation, scale, containerSize);
             }
           ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children:
+          [
+            "${game.player.name}",
+            "${currentShip.shipId} turn: ${currentTurn.turnNumber}",
+            "Wind: ${game.wind.direction.label}, ${game.wind.strength}",
+            "MA: $movementAllowance"
+          ].map((s)=> Text(s)).toList()
         ),
         GameControls(
           game: game,

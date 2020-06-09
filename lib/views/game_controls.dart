@@ -9,14 +9,12 @@ import 'package:flutter/material.dart';
 class GameControls extends StatelessWidget {
   final Game game;
   final Ship ship;
-  final String currentShipId;
   final Function(Game) updateState;
   final TurnCalculations turnCalculations;
 
   GameControls({
     this.game,
     this.ship,
-    this.currentShipId,
     this.updateState,
     this.turnCalculations
   });
@@ -60,6 +58,7 @@ class GameControls extends StatelessWidget {
         SailButtons(
           currentTurn: currentTurn,
           turnCalculations: turnCalculations,
+          sail: ship.sail,
           update: update,
         ),
         Row(
@@ -89,12 +88,14 @@ class GameControls extends StatelessWidget {
 
 class SailButtons extends StatelessWidget {
   final TurnCalculations turnCalculations;
+  final Sail sail;
   final Turn currentTurn;
   final Function(Function) update;
 
   SailButtons({
     this.turnCalculations,
     this.currentTurn,
+    this.sail,
     this.update
   });
 
@@ -118,7 +119,7 @@ class SailButtons extends StatelessWidget {
         );
       }
     }
-    if(plan.sailChange == target) {
+    if(sail == target) {
       return FlatButton.icon(
         icon: Icon(Icons.done),
         label: Text(t),
