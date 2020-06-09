@@ -12,4 +12,15 @@ class Sail {
   final int index;
   final String name;
   const Sail(this.index, this.name);
+
+  Sail get previous => index == 0 ?
+    null :
+    SAIL_STATES[index-1];
+
+  Sail get next => index == SAIL_STATES.length-1 ?
+    null :
+    SAIL_STATES[index+1];
+
+  @override
+  String toString() => "SailState[$name]";
 }

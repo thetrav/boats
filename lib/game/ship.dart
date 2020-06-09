@@ -1,5 +1,3 @@
-import 'package:boats/game/tables.dart';
-import 'package:boats/game/wind.dart';
 import 'package:boats/hex/hex_coords.dart';
 
 import 'headings.dart';
@@ -28,13 +26,14 @@ class Ship {
     this.movementType,
     this.sail});
 
-  int moveAllowance(Wind wind) =>
-    MovementDeterminationTable.movementAllowance(
-      movementType,
-      riggingSections,
-      sail,
-      wind,
-      wind.windFacing(heading));
+  Turn get currentTurn => turns.last;
+  Turn get previousTurn {
+    final index = currentTurn.turnNumber;
+    if(index > 0 ) {
+      return turns[index - 1];
+    }
+    return null;
+  }
 
   void turnPort() {
     heading = heading.port;

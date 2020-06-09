@@ -14,7 +14,8 @@ class ShipEntity extends Entity {
   String get sail => ship.sail == DOWN || ship.sail == FIGHTING ? "FS" : "MS";
 
   String get image => "assets/images/${ship.shipClass} ${sail}.png";
-  String get fsCounter => "assets/images/plainsail.png";
+  String get plainSail => "assets/images/plainsail.png";
+  String get menInRigging => "assets/images/meninrigging.png";
   Heading get heading => ship.heading;
 
   ShipEntity(this.ship);
@@ -24,13 +25,37 @@ class ShipEntity extends Entity {
     final transform = Matrix4.identity()
       ..rotateZ(turnAngle*heading.index)
       ..translate(-size.x / 2, -size.y / 2, 0);
+    final counters = <String>[];
+    if(ship.sail == PLAIN) {
+      counters.add(plainSail);
+      if(ship.previousTurn?.plan?.sailChange==MEDIUM) {
+        counters.add(menInRigging);
+      }
+    }
+    if(ship.sail == MEDIUM && ship?.previousTurn?.plan.sailChange==PLAIN) {
+      counters.add(menInRigging);
+    }
+
+    final counterWidgets = <Widget>[];
+    counters.asMap().forEach((i, c) =>
+      counterWidgets.add(Positioned(
+        top:size.x * i,
+        left:0,
+        child: Image.asset(c,
+          fit: BoxFit.fill,
+          width: size.x,
+          height: size.y
+        )
+      ))
+    );
+
     return Container(
       transform: transform,
       alignment: Alignment.center,
       width: size.x,
       height: size.y*3,
       child: Stack(
-        children: [
+        children: <Widget>[
           Positioned(
             top: 0, left: 0,
             child: Image.asset(image,
@@ -39,16 +64,7 @@ class ShipEntity extends Entity {
               height: size.y * 3,
             )
           ),
-          Positioned(
-            top:size.x,
-            left:0,
-            child: Image.asset(fsCounter,
-              fit: BoxFit.fill,
-              width: size.x,
-              height: size.y
-            )
-          )
-        ]
+        ] + counterWidgets
       )
     );
   }

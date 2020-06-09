@@ -1,5 +1,7 @@
+import 'package:boats/game/sail_state.dart';
 import 'package:boats/game/ship.dart';
 import 'package:boats/game/turn.dart';
+import 'package:boats/game/turn_calculations.dart';
 
 import '../game/game.dart';
 import 'package:flutter/material.dart';
@@ -9,14 +11,17 @@ class GameControls extends StatelessWidget {
   final Ship ship;
   final String currentShipId;
   final Function(Game) updateState;
+  final TurnCalculations turnCalculations;
+
   GameControls({
     this.game,
     this.ship,
     this.currentShipId,
-    this.updateState
+    this.updateState,
+    this.turnCalculations
   });
 
-  Turn get currentTurn => ship.turns.first;
+  Turn get currentTurn => ship.currentTurn;
 
   void planAction(String action) {
     currentTurn.plan.movement.add(action);
@@ -52,6 +57,11 @@ class GameControls extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        SailButtons(
+          currentTurn: currentTurn,
+          turnCalculations: turnCalculations,
+          update: update,
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children:[
@@ -71,5 +81,63 @@ class GameControls extends StatelessWidget {
     );
   }
 
+  update(Function f) {
+    f();
+    updateState(game);
+  }
+}
 
+class SailButtons extends StatelessWidget {
+  final TurnCalculations turnCalculations;
+  final Turn currentTurn;
+  final Function(Function) update;
+
+  SailButtons({
+    this.turnCalculations,
+    this.currentTurn,
+    this.update
+  });
+
+  Widget button(String t, Sail target) {
+    final plan = currentTurn.plan;
+    if(turnCalculations.canChangeSailTo(target)) {
+      if(plan.sailChange == target) {
+        return RaisedButton.icon(
+          icon: Icon(Icons.done),
+          label: Text(t),
+          onPressed: () => update((){
+            plan.sailChange = null;
+          })
+        );
+      } else {
+        return RaisedButton(
+          child: Text(t),
+          onPressed: () => update((){
+            plan.sailChange = target;
+          }),
+        );
+      }
+    }
+    if(plan.sailChange == target) {
+      return FlatButton.icon(
+        icon: Icon(Icons.done),
+        label: Text(t),
+        onPressed: null
+      );
+    }
+    return FlatButton(child: Text(t), onPressed: null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        button("Furl/D", DOWN),
+        button("FS", FIGHTING),
+        button("MS", MEDIUM),
+        button("PS", PLAIN)
+      ]
+    );
+  }
 }

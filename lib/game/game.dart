@@ -1,11 +1,12 @@
 import 'package:boats/game/ship.dart';
 
 import 'player.dart';
+import 'sail_state.dart';
 import 'turn.dart';
 import 'wind.dart';
 
 class Game {
-  int turnCount = 1;
+  int turnCount = 0;
 
   Player player;
   List<Player> players;
@@ -19,29 +20,26 @@ class Game {
     this.wind
   }) {
     this.ships.forEach((s)=> s.turns.add(Turn(
-      ship: s,
-      wind: wind,
-      turnNumber: turnCount
+      turnNumber: turnCount,
+      shipId: s.shipId
     )));
   }
 
-  Turn currentTurn(String shipId) => ships.firstWhere((s)=> s.shipId == shipId).turns.first;
+  Turn currentTurn(String shipId) =>
+    ships.firstWhere((s)=> s.shipId == shipId).currentTurn;
 
   void simulate() {
     turnCount++;
     movement();
-    ships.forEach((s) =>
-      s.turns.insert(0, Turn(
-        turnNumber: turnCount,
-        ship: s,
-        wind: wind
-      ))
-    );
+    ships
+      .where((s) => s.currentTurn.plan.sailChange != null )
+      .forEach(sailChanges);
+    prepareNextTurn();
   }
 
   void movement() {
     ships.forEach((s) => {
-      s.turns.first.plan.movement.forEach((action) {
+      s.currentTurn.plan.movement.forEach((action) {
         if(action == "P") {
           s.turnPort();
         } else if(action == "S") {
@@ -50,6 +48,36 @@ class Game {
           s.advance(int.tryParse(action) ?? 0);
         }
       })
+    });
+  }
+
+  void sailChanges(Ship s) {
+    final plan = s.currentTurn.plan.sailChange;
+    final previousPlan = s.previousTurn?.plan?.sailChange;
+
+    //takes two turns to raise plain sails
+    if(plan == PLAIN && previousPlan != PLAIN) {
+      return;
+    }
+    //takes two turns to lower plain sails
+    if (s.sail == PLAIN &&
+      plan == MEDIUM &&
+      previousPlan != MEDIUM){
+      return;
+    }
+    s.sail = plan;
+  }
+
+  void prepareNextTurn() {
+    ships.forEach((s) {
+      s.turns.add(Turn(
+        turnNumber: turnCount,
+        shipId: s.shipId,
+      ));
+      final sailChange = s.previousTurn?.plan?.sailChange;
+      if(sailChange != s.sail) {
+        s.currentTurn.plan.sailChange = sailChange;
+      }
     });
   }
 }

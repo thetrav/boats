@@ -2,6 +2,8 @@
 
 import 'dart:math';
 
+import 'package:boats/game/turn.dart';
+import 'package:boats/game/turn_calculations.dart';
 import 'package:boats/hex/hex_coords.dart';
 import 'package:boats/views/ship_panel.dart';
 import 'package:boats/views/turn_plan_panel.dart';
@@ -33,6 +35,11 @@ class _GameControllerState extends State<GameController> {
   Hex selectedHex;
   int get hexSize => widget.hexSize;
   bool loading;
+  Turn get currentTurn => currentShip.currentTurn;
+  TurnCalculations turnCalculations;
+
+  int get movementAllowance =>
+    turnCalculations.moveAllowance();
 
   @override
   void initState() {
@@ -45,6 +52,10 @@ class _GameControllerState extends State<GameController> {
     selectedHex = Hex(0,0);
     this.game = widget.game;
     currentShip = game.ships.firstWhere((s)=> s.playerName == game.player.name);
+    turnCalculations = TurnCalculations(
+      game: game,
+      ship: currentShip
+    );
   }
 
   @override
@@ -79,7 +90,7 @@ class _GameControllerState extends State<GameController> {
     });
 
     final overlays = [
-      Positioned(left: 10, top: 10, child: OverlayPanel(TurnPlanPanel(currentShip.turns.first))
+      Positioned(left: 10, top: 10, child: OverlayPanel(TurnPlanPanel(currentTurn))
       ),
     ];
     if (targetShip != null) {
@@ -99,10 +110,13 @@ class _GameControllerState extends State<GameController> {
       children: [
         Row(
           mainAxisSize: MainAxisSize.max,
-          children:[
-            Text("${game.player.name}"),
-            Text("Wind: ${game.wind.direction.label}, ${game.wind.strength}")
-          ]
+          children:
+          [
+            "${game.player.name}",
+            "Wind: ${game.wind.direction.label}, ${game.wind.strength}",
+            "${currentShip.shipId} turn: ${currentTurn.turnNumber}",
+            "Movement Allowance: $movementAllowance"
+          ].map((s)=> Text(s)).toList()
         ),
         Expanded(
           child: ConstrainedGesturePanel(
@@ -127,7 +141,14 @@ class _GameControllerState extends State<GameController> {
         GameControls(
           game: game,
           ship: currentShip,
-          updateState: (g) => setState(() => game = g)
+          turnCalculations: turnCalculations,
+          updateState: (g) => setState(() {
+            game = g;
+            turnCalculations = TurnCalculations(
+              game: game,
+              ship: currentShip
+            );
+          })
         )
       ]
     );
@@ -147,4 +168,3 @@ class OverlayPanel extends StatelessWidget {
     )
   );
 }
-

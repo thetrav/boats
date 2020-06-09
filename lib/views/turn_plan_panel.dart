@@ -10,14 +10,8 @@ class TurnPlanPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
-    children:
-    [
-      "${turn.ship.shipId} turn: ${turn.turnNumber}",
-      "Movement Allowance: ${turn.movementAllowance()}"
-    ].map(text).toList() +
-      turn.plan.movement.map(
-          (s)=> Text(s)
-      ).toList()
+    children: turn.plan.movement.map(
+      (s)=> Text(s)
+    ).toList()
   );
-
 }

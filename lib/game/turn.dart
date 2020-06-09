@@ -1,20 +1,15 @@
-import 'package:boats/game/wind.dart';
-
-import 'ship.dart';
+import 'package:boats/game/sail_state.dart';
 
 class Turn {
   final int turnNumber;
-  final Ship ship;
-  final Wind wind;
+  final String shipId;
   final plan = Plan();
   Result result;
   Turn({
     this.turnNumber,
-    this.ship,
-    this.wind
+    this.shipId
   });
 
-  int movementAllowance() => ship.moveAllowance(wind);
 }
 
 class Plan {
@@ -22,6 +17,8 @@ class Plan {
   //1-9 foreward n hexes
   //p/s turn port or starboard
   List<String> movement = [];
+
+  Sail sailChange;
 }
 
 class Result {
